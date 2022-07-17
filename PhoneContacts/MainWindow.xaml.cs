@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using Microsoft.Win32;
 
 namespace PhoneContacts
@@ -26,14 +29,26 @@ namespace PhoneContacts
         public MainWindow()
         {
             InitializeComponent();
+            try
+            {
+                using (FileStream fs = new FileStream("contacts.xml", FileMode.Open))
+                {
+                    var xmlSerializer = new XmlSerializer(typeof(ObservableCollection<Contact>));
+                    ContactBox.ItemsSource = (ObservableCollection<Contact>)xmlSerializer.Deserialize(fs);
+                }
+            }
+            catch (FileNotFoundException fileNotFoundException)
+            {
+                
+            }
         }
 
         private void EditBtn_OnClick(object sender, RoutedEventArgs e)
         {
 
-            if (EditRow.Height != new GridLength(100))
+            if (EditRow.Height != new GridLength(180))
             {
-                EditRow.Height = new GridLength(100);
+                EditRow.Height = new GridLength(180);
                 BttnsRow.Height = new GridLength(0);
             }
             else
@@ -51,12 +66,17 @@ namespace PhoneContacts
 
         private void AddBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            if (NameTBox.Text != string.Empty && NumberTBox.Text != string.Empty)
+            if (new EmptyPropertyValidationRule().Validate(NameTBox.Text, CultureInfo.CurrentCulture) == ValidationResult.ValidResult &&
+                new EmptyPropertyValidationRule().Validate(NumberTBox.Text, CultureInfo.CurrentCulture) == ValidationResult.ValidResult)
+            //Остальные поля можно добавить потом, поэтому проверки на последующие поля упущены
             {
                 var tempContact = new Contact()
                 {
                     Name = NameTBox.Text,
-                    Number = NumberTBox.Text
+                    Number = NumberTBox.Text,
+                    SecondNumber = SecondNumberTBox.Text,
+                    Address = AddressTBox.Text,
+                    Email = EmailTBox.Text
                 };
                 List<Contact> temp = new List<Contact>(ContactBox.ItemsSource.Cast<Contact>()) { tempContact };
                 ContactBox.ItemsSource = temp;
@@ -75,14 +95,11 @@ namespace PhoneContacts
 
         private void SaveBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            using (StreamWriter sw = File.CreateText(@$"{Directory.GetCurrentDirectory()}\contacts.txt"))
+            using (FileStream fs = new FileStream("contacts.xml", FileMode.Create))
             {
-                var collection = ContactBox.ItemsSource.Cast<Contact>();
-                foreach (var contact in collection)
-                {
-                    sw.WriteLine(contact.Name);
-                    sw.WriteLine(contact.Number);
-                }
+                List<Contact> temp = ContactBox.ItemsSource.OfType<Contact>().ToList();
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Contact>));
+                xmlSerializer.Serialize(fs, temp);
             }
         }
 
@@ -90,6 +107,15 @@ namespace PhoneContacts
         {
             MessageBox.Show("There is no mobile connection, try again later!", "Error", MessageBoxButton.OK,
                 MessageBoxImage.Error);
+        }
+    }
+    public class EmptyPropertyValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            if (string.IsNullOrWhiteSpace((string)value))
+                return new ValidationResult(false, "Can not be empty!");
+            return ValidationResult.ValidResult;
         }
     }
 }

@@ -8,20 +8,10 @@ using System.Threading.Tasks;
 
 namespace PhoneContacts
 {
+    [Serializable]
     public class Contacts
     {
-        private ObservableCollection<Contact> contacts = new ObservableCollection<Contact>();
-
-        public Contacts()
-        {
-            using (StreamReader sr = File.OpenText($@"{Directory.GetCurrentDirectory()}\contacts.txt"))
-            {
-                while (!sr.EndOfStream)
-                {
-                    contacts.Add(new Contact() {Name = sr.ReadLine(), Number = sr.ReadLine()});
-                }
-            }
-        }
+        private ObservableCollection<Contact> contacts;
         public ObservableCollection<Contact> Get() => contacts;
     }
 
@@ -29,6 +19,9 @@ namespace PhoneContacts
     {
         public string Name { get; set; }
         public string Number { get; set; }
+        public string SecondNumber { get; set; }
+        public string Address { get; set; }
+        public string Email { get; set; }
     }
 }
 

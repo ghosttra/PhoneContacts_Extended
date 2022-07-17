@@ -23,8 +23,35 @@
             <RowDefinition Height="Auto" x:Name="BttnsRow"/>
             <RowDefinition Height="0" x:Name="EditRow"/>
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="0" x:Name="ContactBox" DisplayMemberPath="Name"
-                 ItemsSource="{Binding Source={StaticResource contacts}}"/>
+        <ListBox Grid.Row="0" x:Name="ContactBox" HorizontalContentAlignment="Stretch"
+                 ItemsSource="{Binding Source={StaticResource contacts}}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Margin" Value="3"/>
+                    <Setter Property="Padding" Value="3"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="LightCoral" BorderThickness="2" Background="LightSlateGray"
+                            CornerRadius="3" Padding="5 2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center"/>
+
+                            <TextBlock Grid.Row="1" Foreground="White" Text="{ Binding Number}" 
+                                       HorizontalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
         <Grid Grid.Row="1" Height="40" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -38,24 +65,78 @@
             <Button x:Name="RemoveBtn" Click="RemoveBtn_OnClick"  Grid.Column="3" Content="Remove"/>
         </Grid>
         <Grid Margin="5" Grid.Row="2" DataContext="{Binding ElementName=ContactBox, Path=SelectedItem}">
+            <Grid.Resources>
+                <local:EmptyPropertyValidationRule x:Key="Rule"/>
+            </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
-            <WrapPanel ItemWidth="80" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <WrapPanel ItemWidth="80" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Content="Add" x:Name="AddBtn" Click ="AddBtn_OnClick"/>
                 <Button Content="Close" Click ="EditBtn_OnClick"/>
             </WrapPanel>
             <WrapPanel Grid.Row="1">
                 <TextBlock Text="Number: "/>
-                <TextBox x:Name="NumberTBox" PreviewTextInput="NumberValidationTextBox" Width="200" Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox x:Name="NumberTBox" PreviewTextInput="NumberValidationTextBox" Width="200">
+                    <TextBox.Text>
+                        <Binding FallbackValue="" Path="Number"   Mode="TwoWay" ValidatesOnDataErrors="True">
+                            <Binding.ValidationRules>
+                                <local:EmptyPropertyValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
             </WrapPanel>
             <WrapPanel Grid.Row="0">
                 <TextBlock Text="Name: "/>
-                <TextBox  x:Name="NameTBox" Width="200" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox  x:Name="NameTBox" Width="200">
+                    <TextBox.Text>
+                        <Binding FallbackValue="" Path="Name"   Mode="TwoWay" ValidatesOnDataErrors="True">
+                            <Binding.ValidationRules>
+                                <local:EmptyPropertyValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </WrapPanel>
+            <WrapPanel Grid.Row="4">
+                <TextBlock Text="Address: "/>
+                <TextBox  x:Name="AddressTBox" Width="200" >
+                    <TextBox.Text>
+                        <Binding FallbackValue="" Path="Address"   Mode="TwoWay" ValidatesOnDataErrors="True">
+                            <Binding.ValidationRules>
+                                <local:EmptyPropertyValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </WrapPanel>
+            <WrapPanel Grid.Row="3">
+                <TextBlock Text="Email: "/>
+                <TextBox  x:Name="EmailTBox" Width="200">
+                    <TextBox.Text>
+                        <Binding FallbackValue="" Path="Email"   Mode="TwoWay" ValidatesOnDataErrors="True">
+                            <Binding.ValidationRules>
+                                <local:EmptyPropertyValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </WrapPanel>
+            <WrapPanel Grid.Row="2">
+                <TextBlock Text="Second number: "/>
+                <TextBox x:Name="SecondNumberTBox" Width="200" PreviewTextInput="NumberValidationTextBox">
+                    <TextBox.Text>
+                        <Binding Path="SecondNumber"  Mode="TwoWay"/>
+                    </TextBox.Text>
+                </TextBox>
             </WrapPanel>
         </Grid>
-        
+
     </Grid>
 </Window>
