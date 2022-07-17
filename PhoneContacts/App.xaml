@@ -4,6 +4,13 @@
              xmlns:local="clr-namespace:PhoneContacts"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ControlTemplate x:Key="error">
+            <Border BorderBrush="OrangeRed" BorderThickness="1">
+                <Grid>
+                    <AdornedElementPlaceholder/>
+                    <TextBlock Text="{Binding [0].ErrorContent}" Foreground="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 4 0"/>
+                </Grid>
+            </Border>
+        </ControlTemplate>
     </Application.Resources>
 </Application>
