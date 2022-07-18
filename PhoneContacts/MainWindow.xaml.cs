@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-using Microsoft.Win32;
+using System.Collections.Generic;
 
 namespace PhoneContacts
 {
@@ -37,9 +28,9 @@ namespace PhoneContacts
                     ContactBox.ItemsSource = (ObservableCollection<Contact>)xmlSerializer.Deserialize(fs);
                 }
             }
-            catch (FileNotFoundException fileNotFoundException)
+            catch (Exception)
             {
-                
+
             }
         }
 
@@ -78,7 +69,15 @@ namespace PhoneContacts
                     Address = AddressTBox.Text,
                     Email = EmailTBox.Text
                 };
-                List<Contact> temp = new List<Contact>(ContactBox.ItemsSource.Cast<Contact>()) { tempContact };
+                List<Contact> temp;
+                if (ContactBox.ItemsSource != null)
+                {
+                    temp = new List<Contact>(ContactBox.ItemsSource.Cast<Contact>()) { tempContact };
+                }
+                else
+                {
+                    temp = new List<Contact> { tempContact };
+                }
                 ContactBox.ItemsSource = temp;
             }
         }
@@ -95,11 +94,14 @@ namespace PhoneContacts
 
         private void SaveBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            using (FileStream fs = new FileStream("contacts.xml", FileMode.Create))
+            if (ContactBox.Items.Count > 0)
             {
-                List<Contact> temp = ContactBox.ItemsSource.OfType<Contact>().ToList();
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Contact>));
-                xmlSerializer.Serialize(fs, temp);
+                using (FileStream fs = new FileStream("contacts.xml", FileMode.Create))
+                {
+                    List<Contact> temp = ContactBox.ItemsSource.OfType<Contact>().ToList();
+                    XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Contact>));
+                    xmlSerializer.Serialize(fs, temp);
+                }
             }
         }
 
